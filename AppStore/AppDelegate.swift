@@ -8,6 +8,12 @@
 
 import UIKit
 
+extension UIApplication {
+    var statusBarView: UIView {
+        return value(forKey: "statusBar") as! UIView
+    }
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -17,13 +23,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
+        //Set window layer
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.makeKeyAndVisible()
         
+        //Set layer ui view controller
         let layout = UICollectionViewFlowLayout()
         let featureAppsController = FeatureAppsController(collectionViewLayout: layout)
         
+        //Menampilkan ui collection view controller pada saat aplikasi berjalan pertama kali dan embed navigation controller pada ui collection view controller
         window?.rootViewController = UINavigationController(rootViewController: featureAppsController)
+        
+        //set warna status bar
+        UIApplication.shared.statusBarView.backgroundColor = UIColor(red: 100/255, green: 149/255, blue: 237/255, alpha: 1.0)
         
         return true
     }

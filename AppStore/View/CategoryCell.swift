@@ -7,16 +7,19 @@
 //
 
 import UIKit
-import TRON
-import SwiftyJSON
 
 class CategoryCell: UICollectionViewCell, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+    
+    var featuredAppsController: FeatureAppsController?
     
     var appCategory: lineOfApp? {
         didSet {
             if let name = appCategory?.name {
                 nameLabel.text = name
+
             }
+            appCollectionView.reloadData()
+           
             
         }
     }
@@ -108,22 +111,46 @@ class CategoryCell: UICollectionViewCell, UICollectionViewDataSource, UICollecti
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 0, left: 14, bottom: 0, right: 14)
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if let app = appCategory?.apps?[indexPath.item] {
+            featuredAppsController?.showDetailForApp(app: app)
+        }
+    }
 }
 
 class AppsCell: UICollectionViewCell {
     
     var app: inLineOfApp? {
         didSet {
-            nameLabel.text = app?.Name
             featureImageView.image = UIImage(named: (app?.ImageName)!)
+            if let name = app?.Name {
+                nameLabel.text = name
+                
+                let rect = NSString(string: name).boundingRect(with: CGSize(width: frame.width, height: 1000), options: NSStringDrawingOptions.usesFontLeading.union(NSStringDrawingOptions.usesLineFragmentOrigin), attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 14) ], context: nil)
+                
+                if rect.height > 20 {
+                    categoryLabel.frame = CGRect(x: 0, y: frame.width + 37, width: frame.width, height: 20)
+                    priceLabel.frame = CGRect(x: 0, y: frame.width + 52, width: frame.width, height: 20)
+                } else {
+                    categoryLabel.frame = CGRect(x: 0, y: frame.width + 20, width: frame.width, height: 20)
+                    priceLabel.frame = CGRect(x: 0, y: frame.width + 35, width: frame.width, height: 20)
+                }
+                nameLabel.frame = CGRect(x: 0, y: frame.width + 5, width: frame.width, height: 40)
+                nameLabel.sizeToFit()
+
+//                print(frame.width)
+//                print("\(rect.height) \(name)")
+//                print("\(rect.height) \(name)")
+            }
+            
             categoryLabel.text = app?.Category
+    
             if let price = app?.Price {
                 priceLabel.text = "$\(price)"
             } else {
                 priceLabel.text = ""
             }
-            
-            
         }
     }
     
@@ -141,6 +168,8 @@ class AppsCell: UICollectionViewCell {
         imageView.image = UIImage(named: "frozen")
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 16
+        imageView.layer.borderWidth = 0.5
+        imageView.layer.borderColor = UIColor.gray.cgColor
         imageView.clipsToBounds = true
         
         return imageView
@@ -150,7 +179,7 @@ class AppsCell: UICollectionViewCell {
         label.font = UIFont.systemFont(ofSize: 14)
         label.numberOfLines = 2
         label.text = "Disney Build it: Forzen"
-        label.textColor = .darkGray
+        label.textColor = .black
         return label
     }()
     let categoryLabel: UILabel = {

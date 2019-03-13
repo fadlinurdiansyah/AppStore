@@ -8,6 +8,58 @@
 //
 import UIKit
 
+
+class ServiceJSon {
+    
+    
+    static let sharedInstance = ServiceJSon()
+    
+    // MARK: Fugsi untuk conver JSON ke struct
+    func fetchFeaturedApps(customCompletionHandler: @escaping (allCategories) -> Void) {
+        
+        // set url rest API
+        let jsonUrl = "https://api.letsbuildthatapp.com/appstore/featured"
+        guard let url = URL(string: jsonUrl) else { fatalError("error") }
+        
+        // Memasukan nilai json ke variable data
+        URLSession.shared.dataTask(with: url) { (data, response, error) in
+            if error != nil {print(error!);return}
+            do {
+                // Memasukan nilai json pada variable data ke struct all categories (decode json format)
+                    let decodedApps = try JSONDecoder().decode(allCategories.self, from: data!)
+                    DispatchQueue.main.async {
+                        customCompletionHandler(decodedApps)
+                    }
+                }catch let err {
+                    print("Error serializing json: \(err)")
+                }
+        }.resume()
+    }
+    
+    func fetchDetailApps(id: Int, CustomeCompletionHandler: @escaping (inLineOfApp) -> Void) {
+        
+        let jsonUrl = "https://api.letsbuildthatapp.com/appstore/appdetail?id=\(id)"
+//        print(jsonUrl)
+        guard let url = URL(string: jsonUrl) else { fatalError() }
+        
+        URLSession.shared.dataTask(with: url) { (data, response, error) in
+            if error != nil { print(error!);return }
+            do {
+                
+                let decodeData = try JSONDecoder().decode(inLineOfApp.self, from: data!)
+                DispatchQueue.main.async {
+                    CustomeCompletionHandler(decodeData)
+                }
+            } catch let err {
+                print("Error serializing json: \(err)")
+            }
+        }.resume()
+    }
+}
+
+
+
+
 struct allCategories: Decodable {
     let bannerCategory: lineOfApp?
     let categories: [lineOfApp]?
@@ -17,37 +69,25 @@ struct lineOfApp: Decodable {
     let name: String?
     let apps: [inLineOfApp]?
     let type: String?
-    
-    // dinamik olarak aldığımız veriler
-    static func fetchFeaturedApps(customCompletionHandler: @escaping (allCategories) -> Void) {
-        // url stringimizi URL objesine çeviriyoruz
-        let jsonUrl = "https://api.letsbuildthatapp.com/appstore/featured"
-        guard let url = URL(string: jsonUrl) else { fatalError("error") }
-        
-        // url verilerini almaya başlıyoruz.
-        URLSession.shared.dataTask(with: url) { (data, response, error) in
-            if error != nil {print(error!);return}
-            do {
-                // bu kısımda, urlsession ile aldığmız data yı JSONDecoder ile pars edeceğiz
-                let decodedApps = try JSONDecoder().decode(allCategories.self, from: data!)
-                DispatchQueue.main.async {
-                    customCompletionHandler(decodedApps)
-                }
-            }catch let err {
-                print("Error serializing json: \(err)")
-            }
-            }.resume()
-    }
-    
 }
 
 struct inLineOfApp: Decodable {
-    let id: Double?
+    let Id: Int?
     let Name: String?
     let Category: String?
     let ImageName: String?
     let Price: Double?
+    
+    let Screenshots: [String]?
+    let description: String?
+    let appInformation: [appInfo]?
 }
+
+struct appInfo: Decodable {
+    let Name: String?
+    let Value: String?
+}
+
 
 
 
